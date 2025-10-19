@@ -18,8 +18,8 @@ interface CheckoutDialogProps {
     id: string;
     name: string;
     price: number;
-    slug?: string;
-    location?: string;
+    slug: string;
+    location: string;
   };
 }
 
@@ -30,8 +30,8 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
   const [loading, setLoading] = useState(false);
   
   // Determinar si es destino Canaima o Full-day
-  const isCanaima = destination.location?.toLowerCase().includes('canaima') || 
-                    destination.slug?.toLowerCase().includes('canaima');
+  const isCanaima = destination.location.toLowerCase().includes('canaima') || 
+                    destination.slug.toLowerCase().includes('canaima');
   const departureLocation = isCanaima 
     ? "Aeropuerto Internacional de Maiquetía Simón Bolívar" 
     : "Plaza Venezuela, Caracas";
@@ -318,9 +318,7 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                     </SelectContent>
                   </Select>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  Salida desde: {departureLocation}
-                </p>
+                
               </div>
             </div>
           </div>

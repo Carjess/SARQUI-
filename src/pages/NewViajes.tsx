@@ -51,7 +51,7 @@ export default function NewViajes() {
   const [sortBy, setSortBy] = useState<"default" | "price-low" | "price-high">("default");
   const [filterLocation, setFilterLocation] = useState<"all" | "chichiriviche" | "canaima" | "merida">("all");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<{id: string; name: string; price: number} | null>(null);
+  const [selectedDestination, setSelectedDestination] = useState<{id: string; name: string; price: number; slug: string; location: string} | null>(null);
 
   useEffect(() => {
     fetchDestinations();
@@ -115,7 +115,9 @@ export default function NewViajes() {
     setSelectedDestination({
       id: destination.id,
       name: destination.name,
-      price: destination.price
+      price: destination.price,
+      slug: destination.slug,
+      location: destination.location
     });
     setCheckoutOpen(true);
   };
