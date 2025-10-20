@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getDestinationTranslation } from "@/lib/utils";
 import { MapPin, Clock, DollarSign, Users, CheckCircle } from "lucide-react";
 import CheckoutDialog from "@/components/CheckoutDialog";
 
 interface Destination {
   id: string;
   name: string;
+  slug: string;
   location: string;
   description: string;
   full_description: string;
@@ -29,7 +31,7 @@ interface Destination {
 export default function DestinationDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   // Función para obtener imágenes locales
@@ -135,7 +137,7 @@ export default function DestinationDetail() {
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.about}</h2>
                     <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {destination.full_description}
+                      {getDestinationTranslation(destination.slug, 'description', language as 'en' | 'es', t) || destination.full_description}
                     </p>
                   </CardContent>
                 </Card>
@@ -144,7 +146,7 @@ export default function DestinationDetail() {
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.highlights}</h2>
                     <div className="grid md:grid-cols-2 gap-4">
-                      {destination.highlights.map((highlight, index) => (
+                      {(getDestinationTranslation(destination.slug, 'highlights', language as 'en' | 'es', t) || destination.highlights).map((highlight, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                           <span>{highlight}</span>
@@ -158,7 +160,7 @@ export default function DestinationDetail() {
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.includes}</h2>
                     <div className="space-y-3">
-                      {destination.includes.map((item, index) => (
+                      {(getDestinationTranslation(destination.slug, 'includes', language as 'en' | 'es', t) || destination.includes).map((item, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
                           <span>{item}</span>
@@ -230,7 +232,13 @@ export default function DestinationDetail() {
         <CheckoutDialog
           open={checkoutOpen}
           onOpenChange={setCheckoutOpen}
-          destination={destination}
+          destination={{
+            id: destination.id,
+            name: destination.name,
+            price: destination.price,
+            slug: destination.slug,
+            location: destination.location
+          }}
         />
       )}
     </div>

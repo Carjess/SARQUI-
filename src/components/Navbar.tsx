@@ -10,11 +10,13 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const { t } = useLanguage();
-  const { user, signOut } = useAuth();
+  const { user, signOut, setRedirectPath } = useAuth();
   const { isAdmin } = useUserRole();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
@@ -24,6 +26,14 @@ export default function Navbar() {
     { name: t.nav.explore, path: "/explore" },
     { name: t.nav.about, path: "/about" }
   ];
+
+  // Función para manejar el clic en "Iniciar Sesión"
+  const handleLoginClick = () => {
+    // Solo guardar la ruta si no estamos ya en la página de auth
+    if (location.pathname !== '/auth') {
+      setRedirectPath(location.pathname);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,7 +87,11 @@ export default function Navbar() {
               </Button>
             </>
           ) : (
-            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-6 py-2.5 font-medium">
+            <Button 
+              onClick={handleLoginClick}
+              asChild 
+              className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-6 py-2.5 font-medium"
+            >
               <Link to="/auth">{t.nav.login}</Link>
             </Button>
           )}
@@ -140,8 +154,15 @@ export default function Navbar() {
                 </Button>
               </div>
             ) : (
-              <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-6 py-2.5 font-medium mt-6">
-                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                onClick={() => {
+                  handleLoginClick();
+                  setMobileMenuOpen(false);
+                }}
+                asChild 
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-6 py-2.5 font-medium mt-6"
+              >
+                <Link to="/auth">
                   {t.nav.login}
                 </Link>
               </Button>

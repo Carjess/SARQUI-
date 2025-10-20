@@ -2,10 +2,51 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Footer() {
   const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      toast.error(t.footer.enterEmail);
+      return;
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error(t.footer.enterValidEmail);
+      return;
+    }
+
+    setIsSubscribing(true);
+
+    try {
+      // Simular llamada a API (aquí podrías integrar con tu servicio de email)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(t.footer.newsletterSuccess, {
+        description: t.footer.newsletterSuccessDesc
+      });
+      
+      setEmail(""); // Limpiar el campo
+    } catch (error) {
+      toast.error(t.footer.newsletterError, {
+        description: t.footer.newsletterErrorDesc
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
   
   return (
     <footer className="bg-card text-card-foreground pt-16 pb-8 border-t">
@@ -82,19 +123,23 @@ export default function Footer() {
             <p className="text-muted-foreground mb-4">
               {t.footer.newsletterDesc}
             </p>
-            <form className="flex flex-col space-y-2">
-              <input 
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col space-y-2">
+              <Input 
                 type="email" 
-                placeholder={t.footer.yourEmail} 
-                className="rounded-md px-4 py-2 bg-muted text-foreground"
+                placeholder={t.footer.yourEmail}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-muted text-foreground"
                 required 
+                disabled={isSubscribing}
               />
-              <button 
+              <Button 
                 type="submit" 
-                className="btn-primary mt-2"
+                className="mt-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                disabled={isSubscribing}
               >
-                {t.footer.subscribe}
-              </button>
+                {isSubscribing ? "Suscribiendo..." : t.footer.subscribe}
+              </Button>
             </form>
           </div>
         </div>

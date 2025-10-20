@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { CreditCard, Smartphone } from "lucide-react";
+import { validateLuhn, detectCardType, formatCardNumber } from "@/lib/utils";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -25,9 +26,14 @@ interface CheckoutDialogProps {
 
 export default function CheckoutDialog({ open, onOpenChange, destination }: CheckoutDialogProps) {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [cardValidation, setCardValidation] = useState({
+    isValid: false,
+    cardType: '',
+    error: ''
+  });
   
   // Determinar si es destino Canaima o Full-day
   const isCanaima = destination.location.toLowerCase().includes('canaima') || 
@@ -66,6 +72,9 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
 
   const [formData, setFormData] = useState({
     fullName: "",
+    lastName: "",
+    documentType: "cedula",
+    documentNumber: "",
     email: "",
     phone: "",
     phoneCountryCode: "+58",
@@ -79,8 +88,92 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
     cardCVV: ""
   });
 
+  // Función para limpiar el formulario
+  const resetForm = () => {
+    setFormData({
+      fullName: "",
+      lastName: "",
+      documentType: "cedula",
+      documentNumber: "",
+      email: "",
+      phone: "",
+      phoneCountryCode: "+58",
+      numTravelers: minTravelers,
+      travelDate: "",
+      paymentMethod: "credit_card",
+      referenciaPagoMovil: "",
+      cardNumber: "",
+      cardHolder: "",
+      cardExpiry: "",
+      cardCVV: ""
+    });
+    setCardValidation({
+      isValid: false,
+      cardType: '',
+      error: ''
+    });
+  };
+
+  // Función para manejar el cierre del diálogo
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      resetForm(); // Limpiar formulario al cerrar
+    }
+    onOpenChange(open);
+  };
+
   const handleChange = (field: string, value: string | number) => {
+    // Validaciones específicas para campos
+    if (field === 'documentNumber') {
+      if (formData.documentType === 'cedula') {
+        // Solo números, máximo 8 dígitos
+        value = (value as string).replace(/\D/g, '').slice(0, 8);
+      } else if (formData.documentType === 'pasaporte') {
+        // Solo letras y números, máximo 15 caracteres, sin signos
+        value = (value as string).replace(/[^A-Za-z0-9]/g, '').slice(0, 15).toUpperCase();
+      }
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Validar tarjeta en tiempo real cuando se cambia el número
+    if (field === 'cardNumber') {
+      validateCardNumber(value as string);
+    }
+  };
+
+  // Función para validar el número de tarjeta
+  const validateCardNumber = (cardNumber: string) => {
+    const cleanNumber = cardNumber.replace(/\D/g, '');
+    
+    if (cleanNumber.length === 0) {
+      setCardValidation({
+        isValid: false,
+        cardType: '',
+        error: ''
+      });
+      return;
+    }
+    
+    const cardType = detectCardType(cleanNumber);
+    const isValid = validateLuhn(cleanNumber);
+    
+    let error = '';
+    if (cleanNumber.length < 13) {
+      error = 'El número de tarjeta es demasiado corto';
+    } else if (cleanNumber.length > 16) {
+      error = 'El número de tarjeta es demasiado largo';
+    } else if (!isValid) {
+      error = 'Número de tarjeta inválido';
+    } else if (cardType === 'unknown') {
+      error = 'Tipo de tarjeta no reconocido';
+    }
+    
+    setCardValidation({
+      isValid,
+      cardType,
+      error
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,20 +185,39 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
       return;
     }
 
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.travelDate) {
-      toast.error(t.checkout.fillAllFields);
+    if (!formData.fullName || !formData.lastName || !formData.documentNumber || !formData.email || !formData.phone || !formData.travelDate) {
+      toast.error(t.checkout.fillAllRequired);
+      return;
+    }
+
+    // Validar documento de identidad
+    if (formData.documentType === 'cedula' && formData.documentNumber.length < 7) {
+      toast.error("La cédula debe tener al menos 7 dígitos");
+      return;
+    }
+    
+    if (formData.documentType === 'pasaporte' && formData.documentNumber.length < 5) {
+      toast.error("El pasaporte debe tener al menos 5 caracteres");
       return;
     }
 
     if (formData.paymentMethod === "mobile_payment" && !formData.referenciaPagoMovil) {
-      toast.error("Por favor ingrese el número de referencia del pago móvil");
+      toast.error(t.checkout.fillMobilePaymentRef);
       return;
     }
 
     if ((formData.paymentMethod === "credit_card" || formData.paymentMethod === "debit_card") && 
         (!formData.cardNumber || !formData.cardHolder || !formData.cardExpiry || !formData.cardCVV)) {
-      toast.error("Por favor complete todos los datos de la tarjeta");
+      toast.error(t.checkout.fillCardDetails);
       return;
+    }
+
+    // Validar número de tarjeta con Luhn si es pago con tarjeta
+    if ((formData.paymentMethod === "credit_card" || formData.paymentMethod === "debit_card")) {
+      if (!cardValidation.isValid) {
+        toast.error(cardValidation.error || t.checkout.invalidCardNumber);
+        return;
+      }
     }
 
     setLoading(true);
@@ -116,7 +228,7 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
       const { error } = await (supabase as any).from("purchases").insert([{
         user_id: user.id,
         destination_id: destination.id,
-        full_name: formData.fullName,
+        full_name: `${formData.fullName} ${formData.lastName}`,
         email: formData.email,
         phone: `${formData.phoneCountryCode}${formData.phone}`,
         num_travelers: formData.numTravelers,
@@ -124,7 +236,9 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
         payment_method: formData.paymentMethod,
         total_amount: totalAmount,
         status: "pendiente",
-        referencia_bancaria: formData.paymentMethod === "mobile_payment" ? formData.referenciaPagoMovil : null
+        referencia_bancaria: formData.paymentMethod === "mobile_payment" ? formData.referenciaPagoMovil : null,
+        document_type: formData.documentType,
+        document_number: formData.documentNumber
       }]);
 
       if (error) throw error;
@@ -136,6 +250,9 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
       // Reset form
       setFormData({
         fullName: "",
+        lastName: "",
+        documentType: "cedula",
+        documentNumber: "",
         email: "",
         phone: "",
         phoneCountryCode: "+58",
@@ -149,7 +266,7 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
         cardCVV: ""
       });
       
-      onOpenChange(false);
+      handleOpenChange(false);
       navigate("/profile");
     } catch (error: any) {
       toast.error(t.checkout.error, {
@@ -163,7 +280,7 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
   const totalAmount = destination.price * formData.numTravelers;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{t.checkout.title}</DialogTitle>
@@ -178,7 +295,7 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <div className="ml-3">
+             <div className="ml-3">
                 <h3 className="text-sm font-medium text-green-800">
                   Formulario seguro
                 </h3>
@@ -206,10 +323,28 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                     const value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
                     handleChange("fullName", value);
                   }}
-                  placeholder="Juan Pérez"
+                  placeholder={t.checkout.fullName}
                   required
                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-                  title="Solo letras y espacios"
+                  title={t.checkout.onlyLetters}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lastName">{t.checkout.lastName}</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => {
+                    // Solo permitir letras, espacios y caracteres especiales del español
+                    const value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                    handleChange("lastName", value);
+                  }}
+                  placeholder={t.checkout.lastName}
+                  required
+                  pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+                  title={t.checkout.onlyLetters}
                   autoComplete="off"
                 />
               </div>
@@ -260,12 +395,54 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                     required
                     pattern="[0-9]+"
                     maxLength={10}
-                    title="Solo números"
+                    title={t.checkout.onlyNumbers}
                     autoComplete="off"
                     data-lpignore="true"
                     data-form-type="other"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="documentType">{t.checkout.documentType}</Label>
+                <Select
+                  value={formData.documentType}
+                  onValueChange={(value) => {
+                    handleChange("documentType", value);
+                    // Limpiar el número de documento cuando cambie el tipo
+                    handleChange("documentNumber", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cedula">{t.checkout.documentTypes.cedula}</SelectItem>
+                    <SelectItem value="pasaporte">{t.checkout.documentTypes.pasaporte}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="documentNumber">
+                  {formData.documentType === 'cedula' ? t.checkout.documentNumberPlaceholders.cedula : t.checkout.documentNumberPlaceholders.pasaporte}
+                </Label>
+                <Input
+                  id="documentNumber"
+                  value={formData.documentNumber}
+                  onChange={(e) => handleChange("documentNumber", e.target.value)}
+                  placeholder={formData.documentType === 'cedula' ? '12345678' : 'AB123456789'}
+                  required
+                  maxLength={formData.documentType === 'cedula' ? 8 : 15}
+                  title={formData.documentType === 'cedula' ? 'Máximo 8 dígitos' : 'Máximo 15 caracteres'}
+                  autoComplete="off"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {formData.documentType === 'cedula' 
+                    ? '' 
+                    : ''
+                  }
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -298,13 +475,14 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                     onValueChange={(value) => handleChange("travelDate", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una fecha" />
+                      <SelectValue placeholder={t.checkout.selectDate} />
                     </SelectTrigger>
                     <SelectContent>
                       {(availableDates as string[]).map((date) => {
                         const dateObj = new Date(date);
-                        const dayName = dateObj.toLocaleDateString('es-ES', { weekday: 'long' });
-                        const formattedDate = dateObj.toLocaleDateString('es-ES', { 
+                        const locale = language === 'en' ? 'en-US' : 'es-ES';
+                        const dayName = dateObj.toLocaleDateString(locale, { weekday: 'long' });
+                        const formattedDate = dateObj.toLocaleDateString(locale, { 
                           day: 'numeric', 
                           month: 'long', 
                           year: 'numeric' 
@@ -363,19 +541,39 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="cardNumber">{t.checkout.cardNumber}</Label>
-                    <Input
-                      id="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={(e) => handleChange("cardNumber", e.target.value.replace(/\D/g, '').slice(0, 16))}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                      pattern="[0-9]{16}"
-                      maxLength={16}
-                      title="16 dígitos"
-                      autoComplete="off"
-                      data-lpignore="true"
-                      data-form-type="other"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="cardNumber"
+                        value={formData.cardNumber}
+                        onChange={(e) => {
+                          const formatted = formatCardNumber(e.target.value);
+                          handleChange("cardNumber", formatted);
+                        }}
+                        placeholder="1234 5678 9012 3456"
+                        required
+                        maxLength={19}
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
+                        className={cardValidation.error ? "border-red-500" : cardValidation.isValid ? "border-green-500" : ""}
+                      />
+                      {cardValidation.cardType && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <span className="text-xs font-medium text-muted-foreground capitalize">
+                            {cardValidation.cardType}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {cardValidation.error && (
+                      <p className="text-sm text-red-500">{cardValidation.error}</p>
+                    )}
+                    {cardValidation.isValid && (
+                      <p className="text-sm text-green-500">✓ Tarjeta válida</p>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      
+                    </div>
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
@@ -388,10 +586,10 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                         const value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '').toUpperCase();
                         handleChange("cardHolder", value);
                       }}
-                      placeholder="NOMBRE APELLIDO"
+                      placeholder={t.checkout.cardHolder}
                       required
                       pattern="[A-ZÁÉÍÓÚÑ\s]+"
-                      title="Solo letras mayúsculas y espacios"
+                      title={t.checkout.onlyLettersUppercase}
                       autoComplete="off"
                     />
                   </div>
@@ -459,8 +657,8 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
                     placeholder="123456789012"
                     required
                     pattern="[0-9]+"
-                    maxLength={20}
-                    title="Solo números"
+                    maxLength={12}
+                    title={t.checkout.onlyNumbers}
                   />
                 </div>
               </div>

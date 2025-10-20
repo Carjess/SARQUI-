@@ -16,15 +16,39 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, getRedirectPath, clearRedirectPath } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
+      // Obtener la ruta de redirección guardada
+      const redirectPath = getRedirectPath();
+      
+      if (redirectPath && redirectPath !== '/auth') {
+        // Limpiar la ruta guardada y redirigir
+        clearRedirectPath();
+        navigate(redirectPath);
+      } else {
+        // Si no hay ruta guardada o es la misma página de auth, ir al inicio
+        navigate("/");
+      }
+    }
+  }, [user, navigate, getRedirectPath, clearRedirectPath]);
+
+  // Función para manejar el botón "Volver"
+  const handleBackClick = () => {
+    const redirectPath = getRedirectPath();
+    
+    if (redirectPath && redirectPath !== '/auth') {
+      // Limpiar la ruta guardada y volver a la página anterior
+      clearRedirectPath();
+      navigate(redirectPath);
+    } else {
+      // Si no hay ruta guardada, ir al inicio
       navigate("/");
     }
-  }, [user, navigate]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +67,7 @@ export default function Auth() {
           toast.error(error.message);
         } else {
           toast.success(t.auth.loginSuccess);
-          navigate("/");
+          // La redirección se maneja en el useEffect cuando cambia el estado del usuario
         }
       } else {
         const { error } = await signUp(email, password, fullName);
@@ -70,7 +94,7 @@ export default function Auth() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/")}
+              onClick={handleBackClick}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />

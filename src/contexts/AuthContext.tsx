@@ -9,6 +9,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  setRedirectPath: (path: string) => void;
+  getRedirectPath: () => string | null;
+  clearRedirectPath: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,8 +64,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  // Funciones para manejar redirecciones
+  const setRedirectPath = (path: string) => {
+    localStorage.setItem('sarqui_redirect_path', path);
+  };
+
+  const getRedirectPath = () => {
+    return localStorage.getItem('sarqui_redirect_path');
+  };
+
+  const clearRedirectPath = () => {
+    localStorage.removeItem('sarqui_redirect_path');
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signUp, 
+      signIn, 
+      signOut, 
+      setRedirectPath, 
+      getRedirectPath, 
+      clearRedirectPath 
+    }}>
       {children}
     </AuthContext.Provider>
   );

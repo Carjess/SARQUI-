@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getDestinationTranslation } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ interface Destination {
 }
 
 export default function NewViajes() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -213,11 +214,11 @@ export default function NewViajes() {
                     
                     <CardContent className="p-6 flex-1 flex flex-col">
                       <p className="text-muted-foreground mb-4 leading-relaxed flex-1">
-                        {destination.description}
+                        {getDestinationTranslation(destination.slug, 'description', language as 'en' | 'es', t) || destination.description}
                       </p>
                       
                       <div className="mb-4 text-sm text-muted-foreground">
-                        <p><strong>Duración:</strong> {destination.duration}</p>
+                        <p><strong>{t.viajes.duration}:</strong> {destination.duration}</p>
                       </div>
                       
                       <div className="flex flex-col gap-3">
@@ -226,14 +227,14 @@ export default function NewViajes() {
                           className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                           onClick={() => navigate(`/destination/${destination.slug}`)}
                         >
-                          Ver Detalles
+                          {t.viajes.viewDetails}
                         </Button>
                         
                         <Button 
                           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                           onClick={() => handleBooking(destination)}
                         >
-                          Agendar - ${destination.price}
+                          {t.viajes.schedule} - ${destination.price}
                         </Button>
                       </div>
                     </CardContent>
@@ -245,7 +246,7 @@ export default function NewViajes() {
             {filteredDestinations.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-lg text-muted-foreground">
-                  No se encontraron destinos con los filtros seleccionados
+                  {t.viajes.noDestinationsFound}
                 </p>
               </div>
             )}
