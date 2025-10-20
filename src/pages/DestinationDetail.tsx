@@ -133,16 +133,16 @@ export default function DestinationDetail() {
           <div className="container max-w-6xl">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
-                <Card className="animate-fade-in">
+                <Card className="animate-fade-in shadow-lg">
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.about}</h2>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-justify">
                       {getDestinationTranslation(destination.slug, 'description', language as 'en' | 'es', t) || destination.full_description}
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card className="animate-fade-in [animation-delay:100ms]">
+                <Card className="animate-fade-in [animation-delay:100ms] shadow-lg">
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.highlights}</h2>
                     <div className="grid md:grid-cols-2 gap-4">
@@ -156,7 +156,7 @@ export default function DestinationDetail() {
                   </CardContent>
                 </Card>
 
-                <Card className="animate-fade-in [animation-delay:200ms]">
+                <Card className="animate-fade-in [animation-delay:200ms] shadow-lg">
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-4">{t.destination.includes}</h2>
                     <div className="space-y-3">
@@ -172,7 +172,7 @@ export default function DestinationDetail() {
               </div>
 
               <div className="lg:col-span-1">
-                <Card className="sticky top-24 animate-fade-in [animation-delay:300ms]">
+                <Card className="sticky top-24 animate-fade-in [animation-delay:300ms] shadow-lg">
                   <CardContent className="p-6 space-y-6">
                     <div>
                       <div className="text-3xl font-bold text-primary mb-2">

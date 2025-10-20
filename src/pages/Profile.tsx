@@ -116,7 +116,7 @@ export default function Profile() {
           </div>
 
           <div className="grid gap-6">
-            <Card className="animate-fade-in [animation-delay:100ms]">
+            <Card className="animate-fade-in [animation-delay:100ms] shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
@@ -145,7 +145,7 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in [animation-delay:200ms]">
+            <Card className="animate-fade-in [animation-delay:200ms] shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5" />
@@ -160,26 +160,28 @@ export default function Profile() {
                 ) : (
                   <div className="space-y-4">
                     {purchases.map((purchase) => (
-                      <div
+                      <Card
                         key={purchase.id}
-                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="hover:shadow-md transition-shadow"
                       >
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold">{purchase.destinations.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {purchase.destinations.location}
-                            </p>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h3 className="font-semibold">{purchase.destinations.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {purchase.destinations.location}
+                              </p>
+                            </div>
+                            <span className="text-lg font-bold text-primary">
+                              ${purchase.total_amount.toFixed(2)}
+                            </span>
                           </div>
-                          <span className="text-lg font-bold text-primary">
-                            ${purchase.total_amount.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{t.profile.travelDate}: {new Date(purchase.travel_date).toLocaleDateString()}</span>
-                          <span className="capitalize">{purchase.status}</span>
-                        </div>
-                      </div>
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>{t.profile.travelDate}: {new Date(purchase.travel_date).toLocaleDateString()}</span>
+                            <span className="capitalize">{purchase.status}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 )}

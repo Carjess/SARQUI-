@@ -213,7 +213,7 @@ export default function NewViajes() {
                     </div>
                     
                     <CardContent className="p-6 flex-1 flex flex-col">
-                      <p className="text-muted-foreground mb-4 leading-relaxed flex-1">
+                      <p className="text-muted-foreground mb-4 leading-relaxed flex-1 text-justify">
                         {getDestinationTranslation(destination.slug, 'description', language as 'en' | 'es', t) || destination.description}
                       </p>
                       

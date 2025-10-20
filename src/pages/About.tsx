@@ -39,7 +39,7 @@ export default function About() {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">
                   {t.about.mission.title}
                 </h2>
-                <p className="text-muted-foreground text-lg leading-relaxed">
+                <p className="text-muted-foreground text-lg leading-relaxed text-justify">
                   {t.about.mission.description}
                 </p>
               </div>
@@ -75,7 +75,7 @@ export default function About() {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">
                   {t.about.story.title}
                 </h2>
-                <div className="text-muted-foreground text-lg leading-relaxed whitespace-pre-line">
+                <div className="text-muted-foreground text-lg leading-relaxed whitespace-pre-line text-justify">
                   {t.about.story.description}
                 </div>
               </div>

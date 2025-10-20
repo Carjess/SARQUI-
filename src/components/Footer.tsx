@@ -49,15 +49,15 @@ export default function Footer() {
   };
   
   return (
-    <footer className="bg-card text-card-foreground pt-16 pb-8 border-t">
+    <footer className="bg-slate-100 dark:bg-slate-900 text-card-foreground pt-16 pb-8 border-t">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <div className="animate-fade-in [animation-delay:100ms]">
+          <div className="animate-fade-in [animation-delay:100ms] text-center md:text-left">
             <h4 className="text-xl font-bold mb-4">SARQUI</h4>
             <p className="text-muted-foreground mb-4">
               {t.footer.description}
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 justify-center md:justify-start">
               {/*
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <Facebook size={20} />
@@ -77,9 +77,9 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="animate-fade-in [animation-delay:200ms]">
+          <div className="animate-fade-in [animation-delay:200ms] text-center md:text-left">
             <h4 className="text-xl font-bold mb-4">{t.footer.quickLinks}</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-2 flex flex-col items-center md:items-start">
               {[
                 { name: t.nav.home, path: "/" },
                 { name: t.nav.viajes, path: "/viajes" },
@@ -98,9 +98,9 @@ export default function Footer() {
             </ul>
           </div>
           
-          <div className="animate-fade-in [animation-delay:300ms]">
+          <div className="animate-fade-in [animation-delay:300ms] text-center md:text-left">
             <h4 className="text-xl font-bold mb-4">{t.footer.contact}</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-3 flex flex-col items-center md:items-start">
               <li className="flex items-start">
                 <MapPin className="w-5 h-5 mr-2 mt-0.5 text-primary" />
                 <span className="text-muted-foreground">
@@ -118,7 +118,7 @@ export default function Footer() {
             </ul>
           </div>
           
-          <div className="animate-fade-in [animation-delay:400ms]">
+          <div className="animate-fade-in [animation-delay:400ms] text-center md:text-left">
             <h4 className="text-xl font-bold mb-4">{t.footer.newsletter}</h4>
             <p className="text-muted-foreground mb-4">
               {t.footer.newsletterDesc}

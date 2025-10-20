@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -188,10 +188,6 @@ export default function Explore() {
   const { t, language } = useLanguage();
   const [selectedDestination, setSelectedDestination] = useState<"chichiriviche" | "canaima" | "merida">("chichiriviche");
   
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-  
   const currentInfo = destinationsInfo[selectedDestination][language as "es" | "en"];
 
   // Función para obtener imágenes según el destino seleccionado
@@ -277,7 +273,7 @@ export default function Explore() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <h2 className="text-5xl font-bold mb-6">{currentInfo.title}</h2>
-                  <p className="text-lg text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                  <p className="text-lg text-muted-foreground leading-relaxed text-justify" style={{ whiteSpace: 'pre-line' }}>
                     {Array.isArray(currentInfo.description) ? currentInfo.description.join('\n\n') : currentInfo.description}
                   </p>
                 </div>
@@ -292,27 +288,27 @@ export default function Explore() {
               
               {/* Atracciones con imagen al lado */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden">
+                <div className="aspect-[4/3] rounded-2xl overflow-hidden order-last lg:order-none">
                   <img 
                     src={images.attractions}
                     alt="Atracciones"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div>
+                <div className="order-first lg:order-none">
                   <h3 className="text-4xl font-bold mb-6">
                     {language === "es" ? "Atracciones Principales" : "Main Attractions"}
                   </h3>
                   <div className="space-y-3">
                     {currentInfo.attractions.map((attraction, index) => (
                       index === 0 ? (
-                        <p key={index} className="text-muted-foreground mb-6" style={{ whiteSpace: 'pre-line' }}>
+                        <p key={index} className="text-muted-foreground mb-6 text-justify" style={{ whiteSpace: 'pre-line' }}>
                           {attraction}
                         </p>
                       ) : (
                         <div key={index} className="flex items-start gap-3">
                           <span className="text-primary mt-1">•</span>
-                          <span className="text-muted-foreground" style={{ whiteSpace: 'pre-line' }}>
+                          <span className="text-muted-foreground text-justify" style={{ whiteSpace: 'pre-line' }}>
                             {attraction.includes('Cayo Sombrero') || 
                              attraction.includes('Cayo Sal') || 
                              attraction.includes('Cayo Peraza') || 
@@ -356,7 +352,7 @@ export default function Explore() {
                         text.includes("Dulces y Postres") ? (
                           <div key={index} className="flex items-start gap-3">
                             <span className="text-primary mt-1">•</span>
-                            <span className="text-muted-foreground" style={{ whiteSpace: 'pre-line' }}>
+                            <span className="text-muted-foreground text-justify" style={{ whiteSpace: 'pre-line' }}>
                               {text.split('\n').map((line, i) => 
                                 i === 0 ? (
                                   <span key={i} className="font-bold text-primary">{line}<br/></span>
@@ -367,7 +363,7 @@ export default function Explore() {
                             </span>
                           </div>
                         ) : (
-                          <p key={index} className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                          <p key={index} className="text-muted-foreground leading-relaxed text-justify" style={{ whiteSpace: 'pre-line' }}>
                             {text}
                           </p>
                         )
@@ -389,14 +385,14 @@ export default function Explore() {
               
               {/* Historia con imagen al lado */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden">
+                <div className="aspect-[4/3] rounded-2xl overflow-hidden order-last lg:order-none">
                   <img 
                     src={images.history}
                     alt="Historia"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div>
+                <div className="order-first lg:order-none">
                   <h3 className="text-4xl font-bold mb-6">
                     {language === "es" ? "Historia" : "History"}
                   </h3>
@@ -415,7 +411,7 @@ export default function Explore() {
                         // Resto de elementos sin viñetas
                         else {
                           return (
-                            <p key={index} className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                            <p key={index} className="text-muted-foreground leading-relaxed text-justify" style={{ whiteSpace: 'pre-line' }}>
                               {text}
                             </p>
                           );

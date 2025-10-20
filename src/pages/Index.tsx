@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
@@ -10,12 +9,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Index() {
   const { t } = useLanguage();
-  
-  useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
-  }, []);
-  
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,7 +26,7 @@ export default function Index() {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">
                   {t.home.welcome.title}
                 </h2>
-                <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+                <p className="text-muted-foreground mb-8 text-lg leading-relaxed text-justify">
                   {t.home.welcome.description}
                 </p>
                 <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -77,7 +70,7 @@ export default function Index() {
                   <ArrowRight className="h-8 w-8 text-accent" />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">{t.home.benefits.visibility.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t.home.benefits.visibility.description}</p>
+                <p className="text-muted-foreground leading-relaxed ">{t.home.benefits.visibility.description}</p>
               </div>
               
               <div className="text-center p-8 rounded-2xl bg-card hover:shadow-lg transition-all duration-300 animate-fade-in" style={{ animationDelay: "200ms" }}>
@@ -85,7 +78,7 @@ export default function Index() {
                   <Shield className="h-8 w-8 text-accent" />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">{t.home.benefits.credibility.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t.home.benefits.credibility.description}</p>
+                <p className="text-muted-foreground leading-relaxed ">{t.home.benefits.credibility.description}</p>
               </div>
               
               <div className="text-center p-8 rounded-2xl bg-card hover:shadow-lg transition-all duration-300 animate-fade-in" style={{ animationDelay: "300ms" }}>
@@ -93,7 +86,7 @@ export default function Index() {
                   <Gift className="h-8 w-8 text-accent" />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">{t.home.benefits.support.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t.home.benefits.support.description}</p>
+                <p className="text-muted-foreground leading-relaxed ">{t.home.benefits.support.description}</p>
               </div>
             </div>
           </div>
@@ -107,7 +100,7 @@ export default function Index() {
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 {t.home.cta.title}
               </h2>
-              <p className="text-muted-foreground text-lg mb-8">
+              <p className="text-muted-foreground text-lg mb-8 text-justify">
                 {t.home.cta.description}
               </p>
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 text-lg">

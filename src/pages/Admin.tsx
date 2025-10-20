@@ -188,7 +188,7 @@ export default function Admin() {
               </TabsList>
 
               <TabsContent value="destinos" className="mt-6">
-                <Card>
+                <Card className="shadow-lg">
                   <CardHeader>
                     <CardTitle>Gestión de Destinos</CardTitle>
                     <CardDescription>Edita precios y estado de los planes</CardDescription>
@@ -196,86 +196,88 @@ export default function Admin() {
                   <CardContent>
                     <div className="space-y-4">
                       {destinations.map((dest) => (
-                        <div key={dest.id} className="border p-4 rounded-lg">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h3 className="font-semibold text-lg">{dest.name}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                Precio: ${dest.price} | Estado: {dest.estado} | Categoría: {dest.categoria}
-                              </p>
+                        <Card key={dest.id}>
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h3 className="font-semibold text-lg">{dest.name}</h3>
+                                <p className="text-sm text-muted-foreground">
+                                  Precio: ${dest.price} | Estado: {dest.estado} | Categoría: {dest.categoria}
+                                </p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingDestination(dest.id);
+                                  setEditForm({
+                                    price: dest.price,
+                                    estado: dest.estado,
+                                    categoria: dest.categoria,
+                                  });
+                                }}
+                              >
+                                Editar
+                              </Button>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingDestination(dest.id);
-                                setEditForm({
-                                  price: dest.price,
-                                  estado: dest.estado,
-                                  categoria: dest.categoria,
-                                });
-                              }}
-                            >
-                              Editar
-                            </Button>
-                          </div>
 
-                          {editingDestination === dest.id && (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t">
-                              <div>
-                                <Label>Precio</Label>
-                                <Input
-                                  type="number"
-                                  value={editForm.price}
-                                  onChange={(e) =>
-                                    setEditForm({ ...editForm, price: parseFloat(e.target.value) })
-                                  }
-                                />
+                            {editingDestination === dest.id && (
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t">
+                                <div>
+                                  <Label>Precio</Label>
+                                  <Input
+                                    type="number"
+                                    value={editForm.price}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, price: parseFloat(e.target.value) })
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Estado</Label>
+                                  <Select
+                                    value={editForm.estado}
+                                    onValueChange={(value) => setEditForm({ ...editForm, estado: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="activo">Activo</SelectItem>
+                                      <SelectItem value="inactivo">Inactivo</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label>Categoría</Label>
+                                  <Select
+                                    value={editForm.categoria}
+                                    onValueChange={(value) => setEditForm({ ...editForm, categoria: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="playa">Playa</SelectItem>
+                                      <SelectItem value="montaña">Montaña</SelectItem>
+                                      <SelectItem value="gastronómico">Gastronómico</SelectItem>
+                                      <SelectItem value="cultural">Cultural</SelectItem>
+                                      <SelectItem value="otro">Otro</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="md:col-span-3 flex gap-2">
+                                  <Button onClick={() => handleUpdateDestination(dest.id)}>
+                                    Guardar Cambios
+                                  </Button>
+                                  <Button variant="outline" onClick={() => setEditingDestination(null)}>
+                                    Cancelar
+                                  </Button>
+                                </div>
                               </div>
-                              <div>
-                                <Label>Estado</Label>
-                                <Select
-                                  value={editForm.estado}
-                                  onValueChange={(value) => setEditForm({ ...editForm, estado: value })}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="activo">Activo</SelectItem>
-                                    <SelectItem value="inactivo">Inactivo</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label>Categoría</Label>
-                                <Select
-                                  value={editForm.categoria}
-                                  onValueChange={(value) => setEditForm({ ...editForm, categoria: value })}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="playa">Playa</SelectItem>
-                                    <SelectItem value="montaña">Montaña</SelectItem>
-                                    <SelectItem value="gastronómico">Gastronómico</SelectItem>
-                                    <SelectItem value="cultural">Cultural</SelectItem>
-                                    <SelectItem value="otro">Otro</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="md:col-span-3 flex gap-2">
-                                <Button onClick={() => handleUpdateDestination(dest.id)}>
-                                  Guardar Cambios
-                                </Button>
-                                <Button variant="outline" onClick={() => setEditingDestination(null)}>
-                                  Cancelar
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                            )}
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
                   </CardContent>
@@ -283,58 +285,64 @@ export default function Admin() {
               </TabsContent>
 
               <TabsContent value="empresas" className="mt-6">
-                <Card>
+                <Card className="shadow-lg">
                   <CardHeader>
                     <CardTitle>Gestión de Empresas</CardTitle>
                     <CardDescription>Agregar y gestionar empresas turísticas</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={handleCreateEmpresa} className="space-y-4 mb-6 p-4 border rounded-lg">
-                      <h3 className="font-semibold">Nueva Empresa</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label>Nombre</Label>
-                          <Input
-                            required
-                            value={newEmpresa.nombre}
-                            onChange={(e) => setNewEmpresa({ ...newEmpresa, nombre: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Contacto</Label>
-                          <Input
-                            required
-                            value={newEmpresa.contacto}
-                            onChange={(e) => setNewEmpresa({ ...newEmpresa, contacto: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Logo URL</Label>
-                          <Input
-                            value={newEmpresa.logo}
-                            onChange={(e) => setNewEmpresa({ ...newEmpresa, logo: e.target.value })}
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Label>Descripción</Label>
-                          <Textarea
-                            required
-                            value={newEmpresa.descripcion}
-                            onChange={(e) => setNewEmpresa({ ...newEmpresa, descripcion: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <Button type="submit">Crear Empresa</Button>
-                    </form>
+                    <Card className="mb-6">
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold mb-4">Nueva Empresa</h3>
+                        <form onSubmit={handleCreateEmpresa} className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label>Nombre</Label>
+                              <Input
+                                required
+                                value={newEmpresa.nombre}
+                                onChange={(e) => setNewEmpresa({ ...newEmpresa, nombre: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Contacto</Label>
+                              <Input
+                                required
+                                value={newEmpresa.contacto}
+                                onChange={(e) => setNewEmpresa({ ...newEmpresa, contacto: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Logo URL</Label>
+                              <Input
+                                value={newEmpresa.logo}
+                                onChange={(e) => setNewEmpresa({ ...newEmpresa, logo: e.target.value })}
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <Label>Descripción</Label>
+                              <Textarea
+                                required
+                                value={newEmpresa.descripcion}
+                                onChange={(e) => setNewEmpresa({ ...newEmpresa, descripcion: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <Button type="submit">Crear Empresa</Button>
+                        </form>
+                      </CardContent>
+                    </Card>
 
                     <div className="space-y-4">
                       <h3 className="font-semibold">Empresas Registradas</h3>
                       {empresas.map((emp) => (
-                        <div key={emp.id} className="border p-4 rounded-lg">
-                          <h4 className="font-semibold">{emp.nombre}</h4>
-                          <p className="text-sm text-muted-foreground">{emp.descripcion}</p>
-                          <p className="text-sm mt-2">Contacto: {emp.contacto}</p>
-                        </div>
+                        <Card key={emp.id}>
+                          <CardContent className="p-4">
+                            <h4 className="font-semibold">{emp.nombre}</h4>
+                            <p className="text-sm text-muted-foreground">{emp.descripcion}</p>
+                            <p className="text-sm mt-2">Contacto: {emp.contacto}</p>
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
                   </CardContent>
@@ -342,7 +350,7 @@ export default function Admin() {
               </TabsContent>
 
               <TabsContent value="pagos" className="mt-6">
-                <Card>
+                <Card className="shadow-lg">
                   <CardHeader>
                     <CardTitle>Control de Pagos</CardTitle>
                     <CardDescription>Gestiona y confirma pagos de clientes</CardDescription>
@@ -350,40 +358,42 @@ export default function Admin() {
                   <CardContent>
                     <div className="space-y-4">
                       {purchases.map((purchase) => (
-                        <div key={purchase.id} className="border p-4 rounded-lg">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-semibold">{purchase.full_name}</h4>
-                              <p className="text-sm text-muted-foreground">{purchase.email}</p>
-                              <p className="text-sm">
-                                Destino: {purchase.destinations?.name || "N/A"}
-                              </p>
-                              <p className="text-sm">Monto: ${purchase.total_amount}</p>
-                              <p className="text-sm">
-                                Referencia: {purchase.referencia_bancaria || "Sin referencia"}
-                              </p>
-                              <p className="text-sm">
-                                Estado: <span className="font-semibold">{purchase.status}</span>
-                              </p>
+                        <Card key={purchase.id}>
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-semibold">{purchase.full_name}</h4>
+                                <p className="text-sm text-muted-foreground">{purchase.email}</p>
+                                <p className="text-sm">
+                                  Destino: {purchase.destinations?.name || "N/A"}
+                                </p>
+                                <p className="text-sm">Monto: ${purchase.total_amount}</p>
+                                <p className="text-sm">
+                                  Referencia: {purchase.referencia_bancaria || "Sin referencia"}
+                                </p>
+                                <p className="text-sm">
+                                  Estado: <span className="font-semibold">{purchase.status}</span>
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Select
+                                  value={purchase.status}
+                                  onValueChange={(value) => handleUpdatePurchaseStatus(purchase.id, value)}
+                                >
+                                  <SelectTrigger className="w-40">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pendiente">Pendiente</SelectItem>
+                                    <SelectItem value="confirmado">Confirmado</SelectItem>
+                                    <SelectItem value="pagado">Pagado</SelectItem>
+                                    <SelectItem value="rechazado">Rechazado</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
-                            <div className="flex gap-2">
-                              <Select
-                                value={purchase.status}
-                                onValueChange={(value) => handleUpdatePurchaseStatus(purchase.id, value)}
-                              >
-                                <SelectTrigger className="w-40">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pendiente">Pendiente</SelectItem>
-                                  <SelectItem value="confirmado">Confirmado</SelectItem>
-                                  <SelectItem value="pagado">Pagado</SelectItem>
-                                  <SelectItem value="rechazado">Rechazado</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
                   </CardContent>
