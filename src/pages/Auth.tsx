@@ -13,6 +13,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -52,6 +53,19 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isLogin) {
+      if (password !== confirmPassword) {
+        toast.error(t.auth.passwordMismatch);
+        return;
+      }
+
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+      if (!passwordRegex.test(password)) {
+        toast.error(t.auth.passwordInvalid);
+        return;
+      }
+    }
     
     if (!email || !password || (!isLogin && !fullName)) {
       toast.error(isLogin ? t.auth.loginError : t.auth.signupError);
@@ -88,7 +102,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 p-4">
-      <Card className="w-full max-w-md animate-fade-in">
+      <Card className="w-full max-w-md animate-fade-in shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-4 mb-2">
             <Button
@@ -99,7 +113,7 @@ export default function Auth() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <CardTitle className="text-3xl font-bold">
+            <CardTitle className="text-3xl font-bold ">
               {isLogin ? t.auth.login : t.auth.signup}
             </CardTitle>
           </div>
@@ -157,6 +171,22 @@ export default function Auth() {
                 </Button>
               </div>
             </div>
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t.auth.confirmPassword}</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "..." : isLogin ? t.auth.loginButton : t.auth.signupButton}

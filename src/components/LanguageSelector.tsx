@@ -13,12 +13,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 type Language = {
   code: string;
   name: string;
-  flag: string;
 };
 
 const languages: Language[] = [
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "en", name: "English" },
+  { code: "es", name: "Español" },
 ];
 
 export default function LanguageSelector() {
@@ -54,7 +53,6 @@ export default function LanguageSelector() {
           {languages.map((language) => (
             <SelectItem key={language.code} value={language.code} className="cursor-pointer">
               <div className="flex items-center space-x-2">
-                <span>{language.flag}</span>
                 <span>{language.name}</span>
               </div>
             </SelectItem>

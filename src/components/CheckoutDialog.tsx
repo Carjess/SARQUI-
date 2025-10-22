@@ -277,7 +277,18 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
     }
   };
 
-  const totalAmount = destination.price * formData.numTravelers;
+  const exchangeRate = 210.28; // Tasa de cambio USD a Bs.
+  const totalAmountUSD = destination.price * formData.numTravelers;
+  const totalAmountBS = totalAmountUSD * exchangeRate;
+
+  const displayAmount = formData.paymentMethod === "mobile_payment" 
+    ? (
+      <div className="text-right">
+        <span className="text-2xl font-bold text-primary">Bs. {totalAmountBS.toFixed(2)}</span>
+        <span className="text-sm text-muted-foreground ml-2">(${totalAmountUSD.toFixed(2)})</span>
+      </div>
+    )
+    : `$${totalAmountUSD.toFixed(2)}`;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -668,9 +679,13 @@ export default function CheckoutDialog({ open, onOpenChange, destination }: Chec
           <div className="border-t pt-4">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">{t.checkout.total}:</span>
-              <span className="text-2xl font-bold text-primary">
-                ${totalAmount.toFixed(2)}
-              </span>
+              {formData.paymentMethod === "mobile_payment" ? (
+                displayAmount
+              ) : (
+                <span className="text-2xl font-bold text-primary">
+                  {displayAmount}
+                </span>
+              )}
             </div>
             
             <Button
